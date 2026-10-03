@@ -1,0 +1,44 @@
+# Render Blueprint del portal de eventos (ver deploy/render/DESPLIEGUE-RENDER.md).
+# En Render: New > Blueprint > repositorio simulador-eventos. Crea el servicio web con su disco persistente.
+services:
+  - type: web
+    name: evento-coopetrol
+    runtime: node
+    region: virginia            # la más cercana a Colombia
+    plan: starter               # el plan gratuito no admite disco persistente: la base y los soportes se perderían
+    branch: main
+    autoDeploy: false           # se publica a mano (Manual Deploy) cuando el código esté listo
+    buildCommand: node --version   # sin dependencias que instalar
+    startCommand: node --disable-warning=ExperimentalWarning server.js
+    healthCheckPath: /api/cupos
+    disk:
+      name: datos
+      mountPath: /var/data      # base de datos, soportes de pago y respaldos (sobreviven a reinicios y despliegues)
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: HOST
+        value: 0.0.0.0
+      # Render atiende HTTPS y reenvía con X-Forwarded-For / X-Forwarded-Proto.
+      - key: TRUST_PROXY
+        value: "1"
+      - key: CABECERA_IP
+        value: x-forwarded-for
+      - key: IP_SALTOS
+        value: "1"
+      - key: EVENTO_DB
+        value: /var/data/evento.db
+      - key: SOPORTES_DIR
+        value: /var/data/soportes
+      - key: RESPALDO_DIR
+        value: /var/data/respaldos
+      # Claves: EVENTO_SECRETO la genera Render; RESPALDO_CLAVE (64 hexadecimales) se ingresa al crear el servicio.
+      # Guarde una copia segura de ambas: sin ellas no se validan las fechas de expedición ni se descifran los respaldos.
+      - key: EVENTO_SECRETO
+        generateValue: true
+      - key: RESPALDO_CLAVE
+        sync: false
+      # Opcional: restringir el panel a las IP públicas de Coopetrol (CIDR separados por coma).
+      - key: PANEL_REDES
+        sync: false

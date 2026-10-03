@@ -1,0 +1,22 @@
+{
+  "version": "2026-10-02-1",
+  "titulo": "Autorización para el tratamiento de datos personales",
+  "enlace_politica": "https://www.coopetrol.coop/wp-content/uploads/2024/09/Manual_de_Politicas_y_Procedimientos_para_el_Tratamiento_de_Datos_Personales_WEB.pdf",
+  "texto": [
+    "En cumplimiento de la Ley 1581 de 2012, el Decreto 1377 de 2013 (compilado en el Decreto 1074 de 2015) y demás normas concordantes, autorizo de manera previa, expresa e informada a COOPETROL, en calidad de Responsable del Tratamiento, para recolectar, almacenar, usar, circular y suprimir mis datos personales suministrados en este formulario.",
+    "Finalidades: validar mi calidad de asociado y mi identidad, liquidar el valor de ingreso al evento, gestionar mi inscripción, la asignación de cupos y la verificación del pago, contactarme en relación con el evento y cumplir obligaciones contables y de control.",
+    "Como titular tengo derecho a conocer, actualizar, rectificar y suprimir mis datos, solicitar prueba de esta autorización, ser informado sobre el uso de mis datos, revocar la autorización y presentar quejas ante la Superintendencia de Industria y Comercio. Puedo ejercer estos derechos a través de info@coopetrol.coop, la línea gratuita 01 8000 423 761 o las agencias de COOPETROL.",
+    "Datos sensibles: la información sobre discapacidad es un dato sensible (art. 5 y 6 de la Ley 1581 de 2012); su suministro es facultativo y no condiciona la inscripción. Autorizo su tratamiento con la única finalidad de garantizar la accesibilidad y la atención de los asistentes durante el evento. Los datos del vehículo se usan para la logística de ingreso y parqueadero. Declaro que conozco la Política de Tratamiento de Datos Personales de COOPETROL."
+  ],
+  "declaracion_acompanantes": "Declaro que cuento con la autorización de mis acompañantes para suministrar sus datos personales con las mismas finalidades.",
+  "texto_casilla": "Acepto la autorización para el tratamiento de mis datos personales",
+  "imagen": {
+    "texto": [
+      "Uso de imagen (autorización opcional e independiente): si marco la casilla correspondiente, autorizo de manera previa, expresa e informada a COOPETROL para captar, usar, publicar, reproducir y difundir las fotografías y videos en los que aparezca durante el evento, o que yo envíe a COOPETROL con ocasión de él (por ejemplo, para concursos y actividades de la Cooperativa), únicamente en los canales institucionales de COOPETROL: sitio web, redes sociales oficiales, boletines y medios internos de comunicación.",
+      "Finalidades del uso de imagen: informar y divulgar las actividades de bienestar de la Cooperativa, gestionar la participación en concursos y anunciar a sus ganadores. COOPETROL no cederá estas imágenes a terceros para fines comerciales ni las usará con finalidades distintas a las aquí indicadas. La autorización es gratuita y no da lugar a remuneración ni contraprestación alguna.",
+      "Si en las imágenes aparecen niños, niñas o adolescentes que asisten conmigo, declaro ser su padre, madre o representante legal, o contar con la autorización de este, y COOPETROL dará a su imagen un tratamiento que respete su interés superior y sus derechos fundamentales (art. 7 de la Ley 1581 de 2012 y art. 12 del Decreto 1377 de 2013).",
+      "Las imágenes son datos sensibles: esta autorización es voluntaria y no condiciona mi inscripción. Puedo revocarla en cualquier momento por los canales indicados; en ese caso COOPETROL retirará mi imagen de los canales bajo su control en un plazo razonable y no la usará en nuevas publicaciones."
+    ],
+    "texto_casilla": "Autorizo (opcional) el uso de mi imagen y la de los menores de edad que represento, en fotografías y videos del evento, en los canales institucionales de COOPETROL"
+  }
+}

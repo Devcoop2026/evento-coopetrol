@@ -1,0 +1,13 @@
+[
+  { "id": "celular", "etiqueta": "Celular de contacto", "tipo": "telefono", "requerido": true },
+  { "id": "correo", "etiqueta": "Correo electrónico", "tipo": "correo", "requerido": true },
+  { "id": "vehiculo", "etiqueta": "¿Va en vehículo particular?", "tipo": "seleccion", "opciones": ["Sí", "No"], "requerido": true },
+  { "id": "placa", "etiqueta": "Placa del vehículo", "tipo": "placa", "requerido": true, "ayuda": "Ej: ABC123 (moto: ABC12D)",
+    "mostrarSi": { "campo": "vehiculo", "valor": "Sí" } },
+  { "id": "discapacidad", "etiqueta": "¿Alguno de los asistentes presenta discapacidad?", "tipo": "seleccion",
+    "opciones": ["Sí", "No", "Prefiero no responder"], "requerido": true,
+    "ayuda": "Respuesta voluntaria (dato sensible). Se usa solo para garantizar la accesibilidad en el evento." },
+  { "id": "tipo_discapacidad", "etiqueta": "Indique quién y el tipo de discapacidad", "tipo": "texto", "requerido": true, "max": 300,
+    "mostrarSi": { "campo": "discapacidad", "valor": "Sí" } },
+  { "id": "observaciones", "etiqueta": "Observaciones", "tipo": "texto", "requerido": false, "max": 300 }
+]

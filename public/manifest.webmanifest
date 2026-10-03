@@ -1,0 +1,14 @@
+{
+  "name": "Simulador Evento Fin de Año Coopetrol",
+  "short_name": "Evento Coopetrol",
+  "description": "Simule el valor de ingreso al evento para asociados y acompañantes.",
+  "lang": "es-CO",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f7f5",
+  "theme_color": "#009935",
+  "icons": [
+    { "src": "img/icon.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }
+  ]
+}

@@ -1,0 +1,21 @@
+# Solo entra a la imagen el código y los JSON de configuración versionados. Nunca datos personales.
+.git
+.vscode
+.claude
+node_modules
+test
+docs
+deploy
+respaldos
+*.md
+Dockerfile*
+.dockerignore
+.gitignore
+
+data/*.db
+data/*.db-*
+data/soportes
+data/asociados.json
+data/coopetrolitos.json
+data/*.seed.json
+data/*.anterior

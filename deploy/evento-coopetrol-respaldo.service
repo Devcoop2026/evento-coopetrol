@@ -1,0 +1,17 @@
+[Unit]
+Description=Respaldo diario del Evento Coopetrol (base de datos, soportes y datos cargados)
+
+[Service]
+Type=oneshot
+User=evento
+Group=evento
+WorkingDirectory=/opt/evento-coopetrol
+EnvironmentFile=/etc/evento-coopetrol/evento.env
+ExecStart=/usr/bin/node --disable-warning=ExperimentalWarning scripts/respaldo.js
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+UMask=0077
+ReadWritePaths=/var/backups/evento-coopetrol
+ReadOnlyPaths=/var/lib/evento-coopetrol /opt/evento-coopetrol

@@ -1,0 +1,5 @@
+[
+  { "documento": "1100001", "nombre": "Mariana Torres", "documento_asociado": "1001" },
+  { "documento": "1100002", "nombre": "Samuel Torres", "documento_asociado": "1001" },
+  { "documento": "1100003", "nombre": "Valentina Ramírez", "documento_asociado": "2001" }
+]

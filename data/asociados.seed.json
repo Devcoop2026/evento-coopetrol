@@ -1,0 +1,12 @@
+[
+  { "documento": "1001", "nombre": "Ana María Torres", "agencia": "BOGOTA", "estado": "ACTIVO", "fecha_actualizacion": "2026-02-15", "fecha_expedicion": "2008-03-14" },
+  { "documento": "1002", "nombre": "Carlos Pérez Rojas", "agencia": "BOGOTA", "estado": "ACTIVO", "fecha_actualizacion": "2026-07-01", "fecha_expedicion": "2010-07-22" },
+  { "documento": "1003", "nombre": "Luisa Fernanda Gómez", "agencia": "BOGOTA NORTE", "estado": "ACTIVO", "fecha_actualizacion": "2025-11-20", "fecha_expedicion": "2012-01-09" },
+  { "documento": "2001", "nombre": "Jorge Iván Ramírez", "agencia": "ORITO", "estado": "ACTIVO", "fecha_actualizacion": "2026-05-10", "fecha_expedicion": "2005-11-30" },
+  { "documento": "2002", "nombre": "Paola Andrea Díaz", "agencia": "ORITO", "estado": "ACTIVO", "fecha_actualizacion": "2026-04-18", "fecha_expedicion": "2009-05-18" },
+  { "documento": "3001", "nombre": "Andrés Felipe Castro", "agencia": "CALI", "estado": "ACTIVO", "fecha_actualizacion": "2026-01-30", "fecha_expedicion": "2011-08-02" },
+  { "documento": "4001", "nombre": "Mónica Herrera", "agencia": "BARRANCABERMEJA", "estado": "ACTIVO", "fecha_actualizacion": "2025-06-12", "fecha_expedicion": "2003-02-25" },
+  { "documento": "5001", "nombre": "Ricardo Salazar", "agencia": "BARRANQUILLA", "estado": "ACTIVO", "fecha_actualizacion": "2026-09-01", "fecha_expedicion": "2007-10-11" },
+  { "documento": "6001", "nombre": "Diana Carolina Ruiz", "agencia": "MEDELLIN", "estado": "ACTIVO", "fecha_actualizacion": null, "fecha_expedicion": "2014-06-06" },
+  { "documento": "9001", "nombre": "Hernán Ortiz", "agencia": "BOGOTA", "estado": "INACTIVO", "fecha_actualizacion": "2026-03-03", "fecha_expedicion": "2001-09-19" }
+]

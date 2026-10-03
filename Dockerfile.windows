@@ -1,0 +1,48 @@
+# escape=`
+# Imagen de contenedor Windows para Windows Server 2025 (ver deploy/windows/DESPLIEGUE-WINDOWS.md).
+#   docker build -f Dockerfile.windows -t evento-coopetrol .
+# Etapa 1 (Server Core): descarga Node.js LTS de nodejs.org y verifica su SHA-256.
+# Etapa 2 (Nano Server): solo Node y la aplicación; corre como ContainerUser (sin privilegios).
+# Los datos persistentes NO van en la imagen: se montan en C:\datos (base, soportes, config.json) y C:\respaldos.
+
+ARG VERSION_WINDOWS=ltsc2025
+
+FROM mcr.microsoft.com/windows/servercore:${VERSION_WINDOWS} AS node
+# "latest-v24.x" (última 24 LTS) o una versión fija, p. ej. "v24.11.1".
+ARG VERSION_NODE=latest-v24.x
+SHELL ["powershell", "-NoProfile", "-Command", "$ErrorActionPreference = 'Stop'; $ProgressPreference = 'SilentlyContinue';"]
+RUN $base = 'https://nodejs.org/dist/' + $env:VERSION_NODE; `
+    $sumas = (Invoke-WebRequest -UseBasicParsing ($base + '/SHASUMS256.txt')).Content -split [char]10; `
+    $linea = $sumas | Where-Object { $_ -match 'node-v[0-9.]+-win-x64\.zip$' } | Select-Object -First 1; `
+    if (-not $linea) { throw 'No se encontró Node para win-x64 en ' + $base }; `
+    $hash, $archivo = $linea.Trim() -split '\s+'; `
+    Invoke-WebRequest -UseBasicParsing ($base + '/' + $archivo) -OutFile C:\node.zip; `
+    if ((Get-FileHash C:\node.zip -Algorithm SHA256).Hash -ne $hash) { throw 'El SHA-256 de Node no coincide' }; `
+    & 'C:\Windows\System32\tar.exe' -xf C:\node.zip -C C:\; `
+    if ($LASTEXITCODE -ne 0) { throw 'No se pudo extraer Node' }; `
+    Rename-Item (Get-Item C:\node-v*-win-x64).FullName C:\nodejs; `
+    Remove-Item C:\node.zip
+
+FROM mcr.microsoft.com/windows/nanoserver:${VERSION_WINDOWS}
+COPY --from=node C:\nodejs C:\nodejs
+ENV PATH="C:\Windows\system32;C:\Windows;C:\nodejs" `
+    NODE_ENV=production `
+    HOST=0.0.0.0 `
+    PORT=3000 `
+    EVENTO_DB=C:\datos\evento.db `
+    SOPORTES_DIR=C:\datos\soportes `
+    EVENTO_CONFIG=C:\datos\config.json `
+    RESPALDO_DIR=C:\respaldos
+
+WORKDIR C:\app
+COPY package.json server.js ./
+COPY src ./src
+COPY scripts ./scripts
+COPY public ./public
+COPY data ./data
+
+USER ContainerUser
+EXPOSE 3000
+HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 `
+  CMD ["node", "-e", "fetch('http://127.0.0.1:3000/api/cupos').then((r) => process.exit(r.ok ? 0 : 1)).catch(() => process.exit(1))"]
+CMD ["node", "--disable-warning=ExperimentalWarning", "server.js"]

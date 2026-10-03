@@ -1,0 +1,11 @@
+data/evento.db
+data/evento.db-*
+node_modules/
+data/asociados.json
+data/soportes/
+data/coopetrolitos.json
+respaldos/
+__pycache__/
+~$*
+data/evento-dev.db*
+docs/

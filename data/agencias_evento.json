@@ -1,0 +1,4 @@
+{
+  "_descripcion": "Eventos compartidos por varias agencias o puntos de atención: comparten tarifas y cupos. Clave: nombre del evento en tarifas.json; valor: agencias (como vienen en la base de asociados) que asisten a ese evento. Las agencias que no aparecen aquí asisten al evento con su mismo nombre.",
+  "CARTAGENA Y MAMONAL": ["CARTAGENA", "PTO. MAMONAL"]
+}

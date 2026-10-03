@@ -1,0 +1,9 @@
+{
+  "validar_periodo_inscripcion": false,
+  "inscripciones_desde": "2026-10-01",
+  "inscripciones_hasta": "2026-10-31",
+  "enlace_pago_pse": "https://www.avalpaycenter.com/wps/portal/portal-de-pagos/web/pagos-aval",
+  "enlace_canales_pago": "https://www.coopetrol.coop/canales-de-pago/",
+  "soporte_max_mb": 5,
+  "fecha_supresion_datos": "2027-01-31"
+}

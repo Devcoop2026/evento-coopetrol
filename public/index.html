@@ -1,0 +1,368 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Evento Fin de Año Coopetrol</title>
+  <meta name="description" content="Simule el valor de ingreso e inscríbase al evento de fin de año Coopetrol pagando por PSE o en una agencia.">
+  <meta name="theme-color" content="#009935">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="img/icon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="img/icon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="barra">
+    <div class="contenedor barra__int">
+      <img src="img/logo-coopetrol.png" alt="Coopetrol - Especializada en Ahorro y Crédito" class="barra__logo" width="207" height="70">
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="contenedor">
+      <p class="hero__etiqueta" id="inscripciones">Inscripciones del 01 al 31 de octubre</p>
+      <h1 id="nombre-evento">Evento Fin de Año Coopetrol</h1>
+      <p class="hero__texto">Simule cuánto debe pagar por su ingreso y el de sus acompañantes e inscríbase. Su cupo se asigna al registrar el pago. Los acompañantes pagan el 100% del valor del evento. <strong>Elija cómo realizará el pago:</strong></p>
+      <div class="modulos" role="group" aria-label="Módulos de inscripción y pago">
+        <button type="button" class="modulo" data-modulo="PSE" aria-pressed="false" aria-controls="vista-inscribir">
+          <span class="modulo__icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><rect x="2.5" y="5" width="19" height="14" rx="2.5" fill="none" stroke="currentColor" stroke-width="1.8"/><path d="M2.5 9.5h19M6.5 15h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+          </span>
+          <span class="modulo__texto">
+            <strong class="modulo__titulo">Inscripción y pago por PSE</strong>
+            <small class="modulo__desc">Inscríbase, pague en línea y registre el número CUS de su transacción.</small>
+          </span>
+          <span class="modulo__flecha" aria-hidden="true">→</span>
+        </button>
+        <button type="button" class="modulo" data-modulo="AGENCIA" aria-pressed="false" aria-controls="vista-inscribir">
+          <span class="modulo__icono" aria-hidden="true">
+            <svg viewBox="0 0 24 24"><path d="M3 10 12 4l9 6M5 10v9m14-9v9M9 19v-5h6v5M3 19.5h18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </span>
+          <span class="modulo__texto">
+            <strong class="modulo__titulo">Inscripción y pago en agencia</strong>
+            <small class="modulo__desc">¿Pagó en caja o en efectivo en una agencia de Coopetrol? Inscríbase y registre el pago en un solo paso.</small>
+          </span>
+          <span class="modulo__flecha" aria-hidden="true">→</span>
+        </button>
+      </div>
+      <button type="button" class="enlace-consulta" id="btn-ir-consulta" aria-controls="vista-mi">¿Ya se inscribió? <strong>Consulte su inscripción</strong>, registre el pago o modifíquela →</button>
+    </div>
+  </section>
+
+  <main class="contenedor principal">
+    <!-- ============ Vista 1: simular y preinscribirse ============ -->
+    <p class="tarjeta inicio" id="vista-inicio">Elija arriba un módulo para comenzar: <strong>pago por PSE</strong> si pagará en línea,
+      o <strong>pago en agencia</strong> si ya pagó (o pagará) en caja o en efectivo en una agencia de Coopetrol.</p>
+
+    <section id="vista-inscribir" class="vista" aria-labelledby="titulo-modulo" hidden>
+      <form id="formulario" class="tarjeta" novalidate>
+        <div class="modulo-activo">
+          <h2 class="modulo-activo__titulo" id="titulo-modulo">Inscripción y pago por PSE</h2>
+          <p class="modulo-activo__desc" id="desc-modulo"></p>
+        </div>
+        <ol class="pasos">
+          <li class="paso">
+            <h2 class="paso__titulo"><span class="paso__num">1</span> Identifíquese como asociado</h2>
+            <div class="identidad">
+              <div>
+                <label for="documento" class="campo__label">Número de documento</label>
+                <input id="documento" class="campo" data-validar="numerico" maxlength="15" autocomplete="off" placeholder="Ej: 1001" required>
+              </div>
+              <div>
+                <label for="expedicion" class="campo__label">Fecha de expedición del documento</label>
+                <input id="expedicion" class="campo" type="date" required>
+              </div>
+              <button type="button" id="btn-validar" class="boton boton--secundario">Validar</button>
+            </div>
+            <div class="habeas">
+              <details class="habeas__texto">
+                <summary class="habeas__titulo">Autorización para el tratamiento de datos personales (Ley 1581 de 2012)</summary>
+                <div class="habeas__cuerpo" data-habeas-texto></div>
+              </details>
+              <label class="casilla">
+                <input type="checkbox" id="acepta-datos" required>
+                <span data-habeas-casilla>Acepto la autorización para el tratamiento de mis datos personales</span>
+              </label>
+              <label class="casilla casilla--opcional" id="casilla-imagen" hidden>
+                <input type="checkbox" id="acepta-imagen">
+                <span data-imagen-casilla></span>
+              </label>
+            </div>
+            <p class="mensaje" id="msg-asociado" role="status" aria-live="polite"></p>
+            <div class="ficha" id="ficha-asociado" hidden>
+              <div><span class="ficha__label">Asociado</span><strong id="f-nombre"></strong></div>
+              <div><span class="ficha__label">Su agencia</span><strong id="f-agencia"></strong></div>
+              <div><span class="ficha__label">Datos actualizados</span><strong id="f-actualizacion"></strong></div>
+            </div>
+          </li>
+
+          <li class="paso" id="paso-evento" data-bloqueado>
+            <h2 class="paso__titulo"><span class="paso__num">2</span> ¿A qué evento asistirá?</h2>
+            <label for="agencia-evento" class="campo__label">Evento de la agencia</label>
+            <select id="agencia-evento" class="campo"></select>
+            <p class="ayuda">Los valores y los cupos corresponden al evento de la agencia seleccionada. Solo los asociados ocupan cupo; los invitados no.</p>
+            <div class="ficha">
+              <div><span class="ficha__label">Valor asociado</span><strong id="f-valor-asociado"></strong></div>
+              <div><span class="ficha__label">Valor invitado</span><strong id="f-valor-invitado"></strong></div>
+              <div><span class="ficha__label">Cupos disponibles</span><strong id="f-cupos" class="contador"></strong></div>
+            </div>
+            <p class="aviso aviso--rechazado" id="aviso-sin-cupos" hidden>Lo sentimos, se ha superado el límite de cupos disponibles para este evento.</p>
+          </li>
+
+          <li class="paso" id="paso-modalidad" data-bloqueado>
+            <h2 class="paso__titulo"><span class="paso__num">3</span> ¿Cómo asistirá?</h2>
+            <div class="opciones" role="radiogroup" aria-label="Modalidad de ingreso">
+              <label class="opcion">
+                <input type="radio" name="modalidad" value="SOLO" checked>
+                <span class="opcion__caja"><strong>Solo</strong><small>Ingreso únicamente del asociado</small></span>
+              </label>
+              <label class="opcion">
+                <input type="radio" name="modalidad" value="ACOMPAÑADO">
+                <span class="opcion__caja"><strong>Acompañado</strong><small>Con familiares o invitados</small></span>
+              </label>
+            </div>
+
+            <div id="bloque-acompanantes" hidden>
+              <p class="ayuda">Todos los acompañantes deben registrar <strong>número de documento</strong> y <strong>nombres y apellidos completos</strong>, además del tipo. Si el documento es de un asociado, se aplica automáticamente la tarifa de asociado. Los <strong>Coopetrolitos</strong> (si están en el programa) pagan tarifa de asociado y se validan contra la base de Coopetrolitos. Máximo <span class="max-acomp">5</span>.</p>
+              <div id="lista-acompanantes" class="acompanantes"></div>
+              <button type="button" id="btn-agregar" class="boton boton--linea">+ Agregar acompañante</button>
+            </div>
+          </li>
+
+          <li class="paso" id="paso-calcular" data-bloqueado>
+            <h2 class="paso__titulo"><span class="paso__num">4</span> Calcule su valor a pagar</h2>
+            <button type="submit" class="boton boton--primario boton--ancho" id="btn-simular">Simular valor</button>
+            <p class="mensaje" id="msg-simulacion" role="alert"></p>
+          </li>
+        </ol>
+      </form>
+
+      <aside class="tarjeta resultado" id="resultado" hidden aria-live="polite">
+        <h2>Resumen de su simulación</h2>
+        <table class="tabla">
+          <thead><tr><th>Persona</th><th>Tipo</th><th class="num">Valor</th></tr></thead>
+          <tbody id="detalle"></tbody>
+          <tfoot><tr><th colspan="2">Total a pagar</th><th class="num" id="total"></th></tr></tfoot>
+        </table>
+        <p class="nota" id="nota-resultado"></p>
+        <div class="acciones">
+          <button type="button" class="boton boton--primario boton--ancho" id="btn-preinscribir">Inscribirme y pagar por PSE</button>
+        </div>
+        <p class="mensaje" id="msg-preinscripcion" role="alert"></p>
+        <button type="button" class="boton boton--primario" id="btn-ver-existente" hidden>Ver mi inscripción y pagar</button>
+        <p class="nota" data-solo-modulo="PSE">La preinscripción fija el valor calculado, pero <strong>no separa cupo</strong>: el cupo se asigna cuando registre su pago, según disponibilidad. Podrá modificar sus acompañantes hasta que registre el pago.</p>
+        <p class="nota" data-solo-modulo="AGENCIA">Registre abajo el pago que realizó en la agencia. Al enviarlo se crea su inscripción y se asigna el cupo, según disponibilidad, mientras el área encargada verifica el pago.</p>
+      </aside>
+
+      <aside class="tarjeta confirmacion" id="confirmacion" hidden aria-live="polite">
+        <p class="confirmacion__etiqueta" data-solo-modulo="PSE">¡Preinscripción registrada!</p>
+        <p class="confirmacion__etiqueta" data-solo-modulo="AGENCIA">¡Inscripción y pago registrados!</p>
+        <h2>Su referencia es <span class="referencia" id="c-referencia"></span></h2>
+        <p class="aviso aviso--pendiente" data-solo-modulo="PSE">Su cupo <strong>aún no está asegurado</strong>: se asigna al registrar el pago, según la disponibilidad del evento. Pague y registre el pago lo antes posible.</p>
+        <p class="aviso aviso--revision" data-solo-modulo="AGENCIA">Su pago quedó <strong>en revisión</strong> y su cupo asignado. El área encargada verificará el pago con la agencia y le confirmará la inscripción. Consulte el estado en cualquier momento con su documento y fecha de expedición.</p>
+        <p>Total a pagar: <strong id="c-total"></strong> · Personas: <strong id="c-personas"></strong></p>
+        <ol class="instrucciones" data-solo-modulo="PSE">
+          <li>Pague el valor total por <strong>PSE</strong> con el botón <strong>Pagar por PSE</strong> (escriba la referencia en la descripción).</li>
+          <li>Guarde el comprobante y el <strong>número CUS</strong> de la transacción.</li>
+          <li>Registre el pago con el botón <strong>Ya pagué: registrar el pago</strong> (o más tarde en <strong>Consulte su inscripción</strong>).</li>
+        </ol>
+        <div class="pago-pse" data-solo-modulo="PSE">
+          <a class="boton boton--pse" id="c-pse" href="https://www.avalpaycenter.com/wps/portal/portal-de-pagos/web/pagos-aval" target="_blank" rel="noopener noreferrer">Pagar por PSE</a>
+          <p class="pago-pse__nota">Se abre en una pestaña nueva. Pague <strong data-pse-total></strong> y escriba la referencia
+            <strong class="referencia" data-pse-referencia></strong> en la descripción del pago.
+            <button type="button" class="boton-texto" data-copiar-referencia>Copiar referencia</button></p>
+        </div>
+        <button type="button" class="boton boton--linea" id="btn-ir-soporte" data-solo-modulo="PSE">Ya pagué: registrar el pago</button>
+        <button type="button" class="boton boton--linea" id="btn-ver-inscripcion" data-solo-modulo="AGENCIA">Ver mi inscripción</button>
+      </aside>
+
+    </section>
+
+    <!-- ============ Vista 2: consultar mi inscripción ============ -->
+    <section id="vista-mi" class="vista" aria-label="Consultar mi inscripción" hidden>
+      <form id="form-consulta" class="tarjeta" novalidate>
+        <h2 class="tarjeta__titulo">Consulte su inscripción</h2>
+        <p class="ayuda">Ingrese su número de documento y la fecha de expedición para ver su inscripción, registrar el pago o modificarla.</p>
+        <div class="identidad">
+          <div>
+            <label for="q-documento" class="campo__label">Número de documento</label>
+            <input id="q-documento" class="campo" data-validar="numerico" maxlength="15" autocomplete="off" required>
+          </div>
+          <div>
+            <label for="q-expedicion" class="campo__label">Fecha de expedición</label>
+            <input id="q-expedicion" class="campo" type="date" required>
+          </div>
+          <button type="submit" class="boton boton--secundario" id="btn-consultar">Consultar</button>
+        </div>
+        <p class="mensaje" id="msg-consulta" role="alert"></p>
+      </form>
+
+      <article class="tarjeta" id="estado-inscripcion" hidden aria-live="polite">
+        <div class="estado__cabecera">
+          <div>
+            <span class="ficha__label">Referencia</span>
+            <h2 class="referencia" id="e-referencia"></h2>
+          </div>
+          <span class="estado" id="e-estado"></span>
+        </div>
+        <p class="aviso" id="e-mensaje" hidden></p>
+        <div class="ficha ficha--simple">
+          <div><span class="ficha__label">Titular</span><strong id="e-titular"></strong></div>
+          <div><span class="ficha__label">Evento (agencia)</span><strong id="e-agencia"></strong></div>
+          <div><span class="ficha__label">Total a pagar</span><strong id="e-total"></strong></div>
+          <div><span class="ficha__label">Pago registrado</span><strong id="e-soporte">—</strong></div>
+        </div>
+        <table class="tabla">
+          <thead><tr><th>Persona</th><th>Tipo</th><th class="num">Valor</th></tr></thead>
+          <tbody id="e-personas"></tbody>
+        </table>
+        <div class="acciones acciones--fila" id="e-acciones" hidden>
+          <button type="button" class="boton boton--linea" id="btn-modificar">Modificar inscripción</button>
+          <button type="button" class="boton boton--peligro" id="btn-cancelar">Cancelar preinscripción</button>
+        </div>
+        <p class="mensaje" id="msg-estado" role="alert"></p>
+      </article>
+
+      <form class="tarjeta" id="form-modificar" hidden novalidate>
+        <h2 class="tarjeta__titulo">Modificar inscripción</h2>
+        <label for="m-agencia" class="campo__label">Evento de la agencia</label>
+        <select id="m-agencia" class="campo"></select>
+        <p class="ayuda">El total se recalcula con las tarifas del evento elegido y se valida la disponibilidad de cupos. Deje la lista vacía si asistirá solo. Máximo <span class="max-acomp">5</span> acompañantes.</p>
+        <div id="lista-modificar" class="acompanantes"></div>
+        <div class="acciones acciones--fila">
+          <button type="button" class="boton boton--linea" id="btn-agregar-mod">+ Agregar acompañante</button>
+          <span class="espaciador"></span>
+          <button type="button" class="boton boton--linea" id="btn-cerrar-mod">Descartar</button>
+          <button type="submit" class="boton boton--primario" id="btn-guardar-mod">Guardar cambios</button>
+        </div>
+        <p class="mensaje" id="msg-modificar" role="alert"></p>
+      </form>
+
+      <form class="tarjeta" id="form-soporte" hidden novalidate>
+        <h2 class="tarjeta__titulo" id="s-titulo">Registrar el pago</h2>
+        <p class="ayuda" id="s-ayuda">Total a pagar: <strong id="s-total"></strong>. <span id="s-ayuda-texto">Puede pagar por PSE o directamente en cualquier agencia de Coopetrol (efectivo u otro medio) indicando su referencia.</span></p>
+        <fieldset class="medio-pago" id="s-medios">
+          <legend class="campo__label">¿Cómo realizó el pago? *</legend>
+          <div class="opciones">
+            <label class="opcion">
+              <input type="radio" name="medio-pago" value="PSE" checked>
+              <span class="opcion__caja"><strong>Por PSE</strong><small>Pago en línea con CUS y comprobante</small></span>
+            </label>
+            <label class="opcion">
+              <input type="radio" name="medio-pago" value="AGENCIA">
+              <span class="opcion__caja"><strong>En agencia o en efectivo</strong><small>Pago directo en una agencia de Coopetrol</small></span>
+            </label>
+          </div>
+        </fieldset>
+
+        <div data-medio="PSE">
+          <div class="pago-pse">
+            <a class="boton boton--pse" id="s-pse" href="https://www.avalpaycenter.com/wps/portal/portal-de-pagos/web/pagos-aval" target="_blank" rel="noopener noreferrer">Pagar por PSE</a>
+            <p class="pago-pse__nota">Se abre en una pestaña nueva. Pague <strong data-pse-total></strong> y escriba la referencia
+              <strong class="referencia" data-pse-referencia></strong> en la descripción del pago.
+              <button type="button" class="boton-texto" data-copiar-referencia>Copiar referencia</button></p>
+          </div>
+          <div class="rejilla">
+            <div>
+              <label for="s-cus" class="campo__label">Número CUS de la transacción *</label>
+              <input id="s-cus" class="campo" data-validar="numerico" maxlength="20" autocomplete="off" required>
+            </div>
+          </div>
+        </div>
+
+        <div data-medio="AGENCIA" hidden>
+          <p class="aviso aviso--pendiente" id="s-aviso-agencia">Acérquese a cualquier agencia de Coopetrol con la referencia <strong class="referencia" data-pse-referencia></strong>
+            y pague <strong data-pse-total></strong>. Luego registre aquí el pago; el área encargada lo verificará con la agencia.</p>
+          <div class="rejilla">
+            <div>
+              <label for="s-agencia-pago" class="campo__label">Agencia donde pagó *</label>
+              <select id="s-agencia-pago" class="campo" required><option value="">Seleccione…</option></select>
+            </div>
+            <div>
+              <label for="s-recibo" class="campo__label">Número de recibo de caja (opcional)</label>
+              <input id="s-recibo" class="campo" data-validar="alfanumerico" autocomplete="off" maxlength="30">
+            </div>
+          </div>
+        </div>
+
+        <div class="rejilla">
+          <div>
+            <label for="s-fecha" class="campo__label">Fecha del pago *</label>
+            <input id="s-fecha" class="campo" type="date" required>
+          </div>
+          <div>
+            <label for="s-valor" class="campo__label">Valor pagado *</label>
+            <input id="s-valor" class="campo" data-validar="numerico" maxlength="10" autocomplete="off" required>
+          </div>
+        </div>
+        <div class="rejilla" id="s-adicionales"></div>
+        <span class="campo__label" id="s-archivo-titulo">Comprobante de pago <span id="s-archivo-requerido">*</span></span>
+        <div class="zona-archivo" id="zona-archivo">
+          <input id="s-archivo" class="solo-lector" type="file" accept=".pdf,.jpg,.jpeg,.png,application/pdf,image/jpeg,image/png"
+            aria-labelledby="s-archivo-titulo" aria-describedby="s-archivo-ayuda" required>
+          <label for="s-archivo" class="zona-archivo__vacia" id="zona-vacia">
+            <svg class="zona-archivo__icono" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 16V4m0 0-4 4m4-4 4 4M4 16v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="zona-archivo__texto"><strong>Arrastre aquí su comprobante</strong> o <span class="zona-archivo__enlace">selecciónelo desde su equipo</span></span>
+            <span class="zona-archivo__ayuda" id="s-archivo-ayuda">PDF, JPG o PNG · máximo <span id="s-max">5</span> MB</span>
+          </label>
+          <div class="zona-archivo__elegido" id="zona-elegido" hidden>
+            <img class="zona-archivo__miniatura" id="archivo-miniatura" alt="" hidden>
+            <span class="zona-archivo__tipo" id="archivo-tipo" aria-hidden="true">PDF</span>
+            <span class="zona-archivo__datos">
+              <strong class="zona-archivo__nombre" id="archivo-nombre"></strong>
+              <span class="zona-archivo__peso" id="archivo-peso"></span>
+            </span>
+            <label for="s-archivo" class="boton boton--linea boton--mini">Cambiar</label>
+            <button type="button" class="boton-icono" id="archivo-quitar" aria-label="Quitar archivo">×</button>
+          </div>
+        </div>
+        <p class="mensaje" id="msg-archivo" role="alert"></p>
+        <div class="habeas" id="s-habeas">
+          <details class="habeas__texto">
+            <summary class="habeas__titulo">Autorización para el tratamiento de datos personales (Ley 1581 de 2012)</summary>
+            <div class="habeas__cuerpo" data-habeas-texto></div>
+          </details>
+          <label class="casilla">
+            <input type="checkbox" id="acepta-datos-soporte" required>
+            <span data-habeas-casilla>Acepto la autorización para el tratamiento de mis datos personales</span>
+          </label>
+        </div>
+        <button type="submit" class="boton boton--primario boton--ancho" id="btn-enviar-soporte">Enviar soporte</button>
+        <p class="mensaje" id="msg-soporte" role="alert"></p>
+      </form>
+    </section>
+
+    <details class="tarjeta tarifas">
+      <summary>Ver tarifas y cupos por evento</summary>
+      <div class="tabla-scroll">
+        <table class="tabla">
+          <thead><tr><th>Evento (agencia)</th><th class="num">Cupos</th><th class="num">Disponibles</th><th class="num">Valor invitado</th><th class="num">Valor asociado</th></tr></thead>
+          <tbody id="tabla-tarifas"></tbody>
+        </table>
+      </div>
+    </details>
+  </main>
+
+  <footer class="pie">
+    <div class="contenedor">Coopetrol · Especializada en Ahorro y Crédito</div>
+  </footer>
+
+  <template id="tpl-acompanante">
+    <div class="acompanante">
+      <span class="acompanante__num"></span>
+      <input class="campo" name="acomp-documento" data-validar="numerico" maxlength="15" placeholder="N.º de documento" aria-label="Número de documento del acompañante" required>
+      <input class="campo" name="acomp-nombre" data-validar="texto" maxlength="100" placeholder="Nombres y apellidos" aria-label="Nombres y apellidos completos del acompañante" autocomplete="off" required>
+      <select class="campo" name="acomp-tipo" aria-label="Tipo de acompañante">
+        <option value="NO_ASOCIADO">No asociado</option>
+        <option value="COOPETROLITO">Coopetrolito</option>
+      </select>
+      <button type="button" class="boton-icono" aria-label="Quitar acompañante">×</button>
+    </div>
+  </template>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>

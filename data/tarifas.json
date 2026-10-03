@@ -1,0 +1,122 @@
+{
+  "evento": "EVENTO FIN DE AÑO COOPETROL",
+  "inscripciones": "INCRIPCIONES: DEL 01 AL 31 DE OCTUBRE",
+  "cuenta_contable": "272505060",
+  "concepto": "Recaudo eventos recreación asociados",
+  "agencias": [
+    {
+      "agencia": "ORITO",
+      "cupos": 115,
+      "valor_invitado": 110000,
+      "valor_asociado": 33000
+    },
+    {
+      "agencia": "PASTO",
+      "cupos": 150,
+      "valor_invitado": 120000,
+      "valor_asociado": 36000
+    },
+    {
+      "agencia": "MANIZALES",
+      "cupos": 120,
+      "valor_invitado": 120000,
+      "valor_asociado": 36000
+    },
+    {
+      "agencia": "BARRANQUILLA",
+      "cupos": 60,
+      "valor_invitado": 132000,
+      "valor_asociado": 39600
+    },
+    {
+      "agencia": "CALI",
+      "cupos": 150,
+      "valor_invitado": 140000,
+      "valor_asociado": 42000
+    },
+    {
+      "agencia": "PTO. VALLEDUPAR",
+      "cupos": 17,
+      "valor_invitado": 140000,
+      "valor_asociado": 42000
+    },
+    {
+      "agencia": "PTO.TUMACO",
+      "cupos": 17,
+      "valor_invitado": 140000,
+      "valor_asociado": 42000
+    },
+    {
+      "agencia": "BARRANCABERMEJA",
+      "cupos": 200,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "BOGOTA",
+      "cupos": 300,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "BOGOTA NORTE",
+      "cupos": 100,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "BUCARAMANGA",
+      "cupos": 200,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "CARTAGENA Y MAMONAL",
+      "cupos": 140,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "CUCUTA",
+      "cupos": 150,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "LA DORADA",
+      "cupos": 70,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "MEDELLIN",
+      "cupos": 110,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "NEIVA",
+      "cupos": 120,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "PTO. IBAGUE",
+      "cupos": 17,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "TIBU",
+      "cupos": 80,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    },
+    {
+      "agencia": "VILLAVICENCIO",
+      "cupos": 70,
+      "valor_invitado": 145000,
+      "valor_asociado": 43500
+    }
+  ]
+}
