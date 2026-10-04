@@ -1,25 +1,70 @@
-# Evento Fin de Año Coopetrol · Simulador, preinscripción y soporte de pago
+# Evento Fin de Año Coopetrol · Simulación, inscripción y soporte de pago
 
-PWA para que el asociado simule el valor de ingreso al evento, separe cupo (preinscripción), pague por PSE en los
-canales de Coopetrol y cargue el soporte de pago. Incluye un panel para que el área encargada revise los soportes,
-ajuste cupos y exporte a Excel.
+Portal para que el asociado simule el valor de ingreso al evento de fin de año, se inscriba (preinscripción por PSE o
+inscripción con pago en agencia) y registre el soporte de pago. Incluye un panel para que el área encargada revise los
+pagos, ajuste cupos, cargue las bases de asociados y Coopetrolitos y exporte a Excel.
 
-Estructura del código y cómo extenderlo: [ARQUITECTURA.md](ARQUITECTURA.md). Despliegue y operación: [DESPLIEGUE.md](DESPLIEGUE.md) (Linux) , [deploy/windows/DESPLIEGUE-WINDOWS.md](deploy/windows/DESPLIEGUE-WINDOWS.md) (Windows Server 2025 con contenedor Windows e IIS) y [deploy/render/DESPLIEGUE-RENDER.md](deploy/render/DESPLIEGUE-RENDER.md) (Render).
+- **Tecnología**: PHP 8.4, Laravel 13, Livewire 4 y PostgreSQL (en producción, [Neon](https://neon.tech)). Sin Node.js
+  ni compilación de recursos: `public/styles.css` y los módulos de `public/js/` se sirven tal cual.
+- **Estructura del código y cómo extenderlo**: [ARQUITECTURA.md](ARQUITECTURA.md).
+- **Despliegue en Render + Neon** (paso a paso): [deploy/render/DESPLIEGUE-RENDER.md](deploy/render/DESPLIEGUE-RENDER.md).
 
-## Ejecutar
+## Ejecutar en desarrollo
 
-Requisito: **Node.js 22.13 o superior** (SQLite nativo, `node:sqlite`). No hay dependencias que instalar.
+Requisitos: **PHP 8.4** con las extensiones `pdo_pgsql`, `sodium`, `zip` (y `intl`, recomendada), **Composer** y
+**PostgreSQL** (16 o superior). Para `evento:respaldo` se necesita además el cliente de PostgreSQL (`pg_dump`).
 
 ```bash
-npm start                                   # http://localhost:3000  (puerto: variable PORT)
-npm run admin -- tesoreria "Nombre Apellido" # crea/actualiza un usuario del panel (pide la clave)
-npm test                                    # pruebas de reglas de negocio
-npm run dev                                 # arranca con datos ficticios de prueba
-npm run limpiar -- inscripciones            # vista previa de limpieza (agregar --confirmar); ver scripts/limpiar.js
+composer install
+cp .env.example .env                 # complete DB_DATABASE, DB_USERNAME y DB_PASSWORD
+php artisan key:generate
+php artisan migrate
+php artisan db:seed                  # tarifas y cupos (data/tarifas.json)
+php artisan db:seed --class=DatosPruebaSeeder   # asociados y Coopetrolitos FICTICIOS (data/*.seed.json)
+php artisan evento:usuario admin "Nombre Apellido" --rol=administrador   # pide la clave (mínimo 10 caracteres)
+php artisan serve                    # http://localhost:8000
 ```
 
-- Asociados: `http://localhost:3000/`
-- Panel de administración: `http://localhost:3000/admin.html`
+`composer setup` hace los primeros pasos (instalar, `.env`, clave, migraciones y tarifas) y `composer dev` arranca el
+servidor de desarrollo.
+
+### Rutas
+
+| Ruta | Descripción |
+|---|---|
+| `/` | Portal del asociado. Enlaces directos a cada módulo (p. ej. para compartir desde las agencias): `/#pse`, `/#agencia` y `/#consulta` |
+| `/admin` | Panel de administración (requiere sesión; `PANEL_REDES` lo restringe a redes internas) |
+| `/admin/ingreso` | Ingreso al panel |
+| `/admin/soportes/{id}` | Comprobante de pago de un soporte (solo con sesión del panel; servido aislado con CSP `sandbox`) |
+| `/admin/exportar.csv` | Exportación de inscripciones para Excel |
+| `/admin/bases/{tipo}/plantilla.csv` | Plantilla de la base de `asociados` o `coopetrolitos` (solo administrador) |
+| `/up` | Verificación de salud (la usa Render) |
+
+La interfaz es Livewire: no hay una API JSON pública. Las acciones de los componentes pasan por la ruta de
+actualización de Livewire, con protección CSRF y el límite general de solicitudes por IP.
+
+### Pruebas
+
+```bash
+php artisan test
+```
+
+Usan la base PostgreSQL **`postgres_evento_test`** (configurada en `phpunit.xml`; host, usuario y clave salen de `.env`).
+Nunca apunte las pruebas a la base de desarrollo: `RefreshDatabase` la vacía. Las pruebas de respaldo se omiten si no
+hay `pg_dump` instalado.
+
+### Comandos de consola
+
+| Comando | Uso |
+|---|---|
+| `evento:usuario {usuario} {nombre?} {--rol=}` | Crea un usuario del panel o cambia su clave. Rol `ADMINISTRADOR` (por defecto al crear) o `REVISOR`; al actualizar sin `--rol` conserva el actual. La clave se pide dos veces, o se toma de la variable `ADMIN_CLAVE` |
+| `evento:cargar-base {asociados\|coopetrolitos} {archivo} {--confirmar}` | Carga masiva desde Excel o CSV. Sin `--confirmar` solo muestra la vista previa |
+| `evento:tarifas {archivo?} {--solo-recargar}` | Genera `data/tarifas.json` desde `docs/Evento.xlsx` y lo carga en la base. `--solo-recargar` solo vuelve a cargar el JSON |
+| `evento:respaldo` | Respaldo en `RESPALDO_DIR/AAAAMMDD-HHMM`: base (`pg_dump`), comprobantes en disco y `data/*.json`, cifrado con `RESPALDO_CLAVE`. Borra los respaldos con más de `RETENCION_DIAS` días |
+| `evento:restaurar {origen} {destino}` | Descifra un respaldo e indica el comando `pg_restore` para restaurarlo |
+| `evento:limpiar {inscripciones\|bases\|auditoria\|cupos\|todo} {--confirmar}` | Borra datos (con respaldo previo). Conserva usuarios del panel, tarifas y configuración. Al limpiar inscripciones las referencias vuelven a empezar en `EVTaa-000001` |
+| `evento:generar-datos-prueba {carpeta?}` | Genera `asociados_prueba.csv` y `coopetrolitos_prueba.csv` ficticios (por defecto en `docs/prueba`) |
+| `evento:importar-sqlite {archivo} {--soportes=} {--confirmar}` | Migración única de los datos de la versión anterior (Node.js + SQLite). Ver la guía de despliegue |
 
 ## Flujo
 
@@ -38,8 +83,6 @@ Inscripción y pago en agencia (un solo paso)
 ¿Ya se inscribió? Consulte su inscripción: estado, registrar el pago (PSE o agencia), modificar o cancelar.
 ```
 
-Enlaces directos a cada módulo (p. ej. para compartir desde las agencias): `/#pse`, `/#agencia` y `/#consulta`.
-
 | Estado | Significado | ¿Ocupa cupo? | Asociado puede |
 |---|---|---|---|
 | `PREINSCRITO` | Preinscrito, pendiente de pago (solo módulo PSE) | No | Modificar, cancelar, registrar el pago |
@@ -56,8 +99,8 @@ pago se rechaza, o al cancelar o anular.
 
 **Identificación**
 - El titular debe ser asociado **activo**, con **datos actualizados en los últimos 12 meses** (`MESES_VIGENCIA_DATOS`).
-- Segunda validación: **fecha de expedición del documento**. Tras 5 intentos fallidos el documento se bloquea 15 minutos.
-  El mensaje de error es el mismo si el documento no existe o la fecha no coincide.
+- Segunda validación: **fecha de expedición del documento**. Tras 10 intentos fallidos en 15 minutos el documento se
+  bloquea 15 minutos. El mensaje de error es el mismo si el documento no existe o la fecha no coincide.
 - Se exige aceptar la **autorización de tratamiento de datos (habeas data)**.
 
 **Valores**
@@ -74,22 +117,25 @@ pago se rechaza, o al cancelar o anular.
 - El cupo es por evento (agencia) y lo ocupan el titular, los acompañantes asociados y los **Coopetrolitos**. Los no asociados no ocupan cupo.
 - **La preinscripción no ocupa cupo:** el cupo se descuenta al enviar el formulario de pago válido (estado *En revisión*) y se
   mantiene si se confirma; se libera si el pago se rechaza, la inscripción se anula o el asociado cancela. Al enviar el pago se
-  verifica que haya cupo, así el contador nunca supera el límite.
+  verifica que haya cupo, así el contador nunca supera el límite (las operaciones que ocupan cupos se ejecutan de una en una
+  con un bloqueo de transacción de PostgreSQL).
 - Cupo inicial: columna *CANT. POR AGENCIA* del Excel. El administrador puede **ajustarlo desde el panel**
   (no por debajo de los ocupados). Dejarlo vacío vuelve al valor del Excel.
-- Contador actualizable: la página pública y el panel refrescan los cupos disponibles cada 30 segundos.
+- Contador actualizable: el portal y el panel refrescan los cupos disponibles cada 30 segundos.
 - Una persona (titular o acompañante) no puede estar en dos inscripciones activas. Máximo 5 acompañantes (`MAX_ACOMPANANTES`).
 - Tras una inscripción exitosa el formulario se limpia (equipos compartidos en agencias).
-- Las inscripciones solo se reciben entre `inscripciones_desde` e `inscripciones_hasta` (`data/config.json`).
+- Las inscripciones solo se reciben entre `inscripciones_desde` e `inscripciones_hasta` (`data/config.json`), salvo que
+  `validar_periodo_inscripcion` sea `false`.
 
 **Soporte de pago**
 - PSE: CUS de la transacción (solo números), fecha de pago (no futura), valor pagado y comprobante PDF/JPG/PNG obligatorio
-  (máximo `soporte_max_mb`, se verifica el contenido real del archivo).
+  (máximo `soporte_max_mb`; se verifica el contenido real del archivo, no la extensión).
 - Agencia o efectivo: agencia donde pagó, fecha y valor; recibo de caja y foto del comprobante opcionales.
 - Un mismo CUS no puede usarse en dos inscripciones. Si el valor pagado no coincide con el total, se marca una alerta para el revisor.
 - Campos adicionales configurables en `data/formulario_soporte.json` (sin programar).
 
-**Validación por tipo de campo** (en el navegador mientras se escribe y en el servidor; ver `src/dominio/reglas.js` y `public/validacion.js`):
+**Validación por tipo de campo** (en el navegador mientras se escribe y en el servidor; ver `app/Dominio/Compartido/Reglas.php`
+y `public/js/validacion.js`):
 
 | Tipo | Permite | Campos |
 |---|---|---|
@@ -109,110 +155,107 @@ La carga masiva omite (con el motivo) las filas cuyo documento no es numérico o
   texto en `imagen` de `data/habeas_data.json`. Se guarda por inscripción y aparece en el panel y en la exportación.
   **El texto es un borrador y debe validarlo el área jurídica / oficial de protección de datos**; al cambiarlo, suba la `version`.
 - Para acompañantes no se muestran nombres de la base de datos (se usa el nombre digitado).
+- Producción en Render y Neon (Estados Unidos): es una **transferencia internacional de datos** que debe validar el área jurídica
+  (ver la guía de despliegue).
 
 ## Configuración
 
 | Archivo | Contenido |
 |---|---|
-| `data/config.json` | Fechas de inscripción, enlace de pago PSE, tamaño máximo del soporte |
+| `data/config.json` | Fechas de inscripción, `validar_periodo_inscripcion`, enlaces de pago, tamaño máximo del soporte, `fecha_supresion_datos` |
 | `data/formulario_soporte.json` | Campos adicionales del formulario de soporte |
-| `data/habeas_data.json` | Texto de autorización de tratamiento de datos |
-| `data/tarifas.json` | Tarifas y cupos (generado desde el Excel) |
-| `data/agencias_evento.json` | Eventos compartidos por varias agencias (p. ej. CARTAGENA y MAMONAL → "CARTAGENA Y MAMONAL"): comparten tarifas y cupos |
+| `data/habeas_data.json` | Texto de autorización de tratamiento de datos y de uso de imagen |
+| `data/tarifas.json` | Tarifas y cupos (generado desde el Excel con `evento:tarifas`) |
+| `data/agencias_evento.json` | Eventos compartidos por varias agencias (p. ej. CARTAGENA y PTO. MAMONAL → "CARTAGENA Y MAMONAL"): comparten tarifas y cupos |
 
-Campos adicionales: `{ "id", "etiqueta", "tipo", "requerido", "opciones"?, "max"? }` con
-`tipo` = `texto`, `numero`, `fecha`, `correo`, `telefono` o `seleccion` (requiere `opciones`). Reinicie el servidor tras editarlos.
+Campos adicionales: `{ "id", "etiqueta", "tipo", "requerido", "opciones"?, "max"?, "ayuda"?, "mostrarSi"?: { "campo", "valor" } }`
+con `tipo` = `texto`, `numero`, `numerico`, `fecha`, `correo`, `telefono`, `placa` o `seleccion` (requiere `opciones`).
+Los JSON se leen en cada solicitud y `data/tarifas.json` se recarga en la base cuando cambia; en Render se cambian con un
+nuevo despliegue.
 
-Variables de entorno: `PORT`, `HOST`, `TRUST_PROXY` (1 detrás de Nginx), `NODE_ENV`, `EVENTO_SECRETO` (clave HMAC de las
-fechas de expedición; obligatoria en producción), `DATOS_PRUEBA` (1 = carga los asociados ficticios), `EVENTO_DB`,
-`SOPORTES_DIR`, `EVENTO_CONFIG`, `RESPALDO_DIR`, `RETENCION_DIAS`, `MAX_ACOMPANANTES`, `MESES_VIGENCIA_DATOS`.
+Variables de entorno principales (ver `.env.example` y `config/evento.php`):
+
+| Variable | Uso |
+|---|---|
+| `DB_CONNECTION`, `DB_URL` o `DB_HOST`/`DB_DATABASE`/`DB_USERNAME`/`DB_PASSWORD`, `DB_SSLMODE` | PostgreSQL (en Neon: `DB_URL` con `?sslmode=require`) |
+| `EVENTO_SECRETO` | Clave HMAC de las fechas de expedición (32 caracteres o más; obligatoria en producción) |
+| `SOPORTES_ALMACEN` | `base_datos` (por defecto) o el nombre de un disco (`soportes` en disco local, `s3`) |
+| `PANEL_REDES` | Panel solo desde estas redes (CIDR separados por coma) |
+| `MAX_ACOMPANANTES`, `MESES_VIGENCIA_DATOS` | Reglas del evento (5 y 12 por defecto) |
+| `LIMITE_LOGIN_IP`, `LIMITE_IDENTIDAD_IP`, `LIMITE_SOLICITUDES_IP` | Límites por IP (10, 20 y 600) |
+| `RESPALDO_CLAVE`, `RESPALDO_DIR`, `RETENCION_DIAS`, `PG_DUMP` | Respaldos (`evento:respaldo`) |
+| `SESSION_*`, `CACHE_STORE`, `TRUSTED_PROXIES`, `LOG_SEGURIDAD` | Sesiones y caché en la base, proxy de Render, registro de seguridad |
+| `EVENTO_DATOS`, `EVENTO_CONFIG` | Carpeta de los JSON y un `config.json` alterno (ambientes de prueba) |
 
 ## Datos personales: bases de asociados y Coopetrolitos
 
 Los datos personales **no se guardan en el repositorio ni en archivos del proyecto**. Se cargan directamente a la base de
-datos del servidor:
+datos:
 
-- **Panel de administración** (recomendado): *Bases de asociados y Coopetrolitos* → arrastrar el Excel o CSV → revisar la
-  vista previa (registros válidos, filas omitidas con motivo, advertencias) → confirmar. Cada carga reemplaza la base
-  completa en una transacción y queda registrada con usuario y fecha.
-- **Consola** (cargas masivas): `npm run base -- asociados archivo.xlsx` (vista previa) y agregar `--confirmar` para guardar.
-  En producción: `deploy/cargar_base.sh`.
+- **Panel de administración** (recomendado): *Cupos y cargas masivas* → elegir el Excel o CSV → revisar la vista previa
+  (registros válidos, filas omitidas con motivo, advertencias) → confirmar. Cada carga reemplaza la base completa en una
+  transacción y queda registrada con usuario y fecha.
+- **Consola**: `php artisan evento:cargar-base asociados archivo.xlsx` (vista previa) y agregar `--confirmar` para guardar.
 
-Columnas (primera fila; no importan mayúsculas ni tildes). Plantillas con datos ficticios en `docs/` o descargables desde el panel:
+Columnas (primera fila; no importan mayúsculas, tildes, puntos ni guiones bajos). Plantillas descargables desde el panel;
+archivos ficticios para probar en `docs/prueba/` (`evento:generar-datos-prueba`):
 
 | Base | Columnas |
 |---|---|
-| Asociados | Cedula, Nombre, Agencia, Asociado, Ultima actualizacion de datos, Fecha expedicion |
-| Coopetrolitos | Documento, Nombre, Cedula asociado |
+| Asociados | Cedula, Nombre, Agencia, Asociado, Ultima actualizacion de datos, Fecha expedicion, Fecha nacimiento (opcional) |
+| Coopetrolitos | Documento, Nombre, Cedula asociado, Fecha nacimiento (opcional) |
 
 - **Asociado**: SI / S / X / 1 / ACTIVO = asociado; otro valor = no asociado.
 - **Fechas**: fecha de Excel, DD/MM/AAAA, DD-MM-AAAA o AAAA-MM-DD.
-- **Agencia**: debe coincidir con el nombre del Excel de tarifas.
+- **Agencia**: debe coincidir con el nombre del Excel de tarifas (o estar en `data/agencias_evento.json`).
 - **Fecha de expedición**: se guarda como HMAC-SHA256 con `EVENTO_SECRETO`, nunca en texto plano. Si la clave cambia,
   hay que volver a cargar la base de asociados.
 - Cargue primero asociados y luego Coopetrolitos.
 
-**Tarifas** (sin datos personales): modifique `docs/Evento.xlsx` y ejecute `npm run tarifas` (Python + openpyxl);
-el servidor recarga `data/tarifas.json` sin reiniciar.
+**Tarifas** (sin datos personales): modifique `docs/Evento.xlsx` y ejecute `php artisan evento:tarifas`; luego publique el
+cambio de `data/tarifas.json` (en Render, con un nuevo despliegue).
 
-**Datos de prueba**: `npm run dev` arranca con los asociados y Coopetrolitos ficticios de `data/*.seed.json`
-(ver la tabla al final). Con `npm start` no se cargan.
-
-## Producción y respaldos
-
-Despliegue en Linux (Nginx + systemd, respaldo diario): ver [DESPLIEGUE.md](DESPLIEGUE.md) y la carpeta `deploy/`.
-Respaldo manual: `npm run respaldo` (copia la base, los soportes y `data/*.json`).
+**Datos de prueba**: `php artisan db:seed --class=DatosPruebaSeeder` carga los asociados y Coopetrolitos ficticios de
+`data/*.seed.json` (ver la tabla al final). Nunca se cargan en producción.
 
 ## Seguridad
 
-- Panel: claves con hash scrypt; sesión en cookie `HttpOnly`/`SameSite=Strict` (8 horas) y en la base solo el **hash** del token;
-  10 intentos de ingreso cada 15 minutos por IP.
-- Límites por IP (respuesta 429 con `Retry-After`): 20 fallos de identificación (documento + fecha) cada 15 minutos y 600
-  solicitudes a la API cada 5 minutos; además, 10 fallos por documento bloquean ese documento 15 minutos.
+- **Panel**: sesiones de Laravel guardadas en la base (tabla `sessions`), cookie `HttpOnly`, `SameSite=Strict`, `Secure` en
+  producción y duración de 8 horas (`SESSION_LIFETIME=480`). Claves con el hash de Laravel (bcrypt); las claves scrypt
+  importadas de la versión anterior se convierten al primer ingreso. Cambiar la clave o el rol cierra las sesiones abiertas
+  del usuario. 10 intentos de ingreso cada 15 minutos por IP.
+- **Roles**: **Administrador** (todo) y **Revisor** (consultar, aprobar o rechazar pagos y exportar), con la regla
+  `Gate::define('administrar')`; lo que el rol no permite responde 403. `PANEL_REDES` restringe el panel a redes internas.
+- **Límites por IP** (`RateLimiter` de Laravel sobre la caché en la base; respuesta 429 con `Retry-After`): 20 fallos de
+  identificación (documento + fecha) cada 15 minutos y 600 solicitudes a los componentes cada 5 minutos; además, 10 fallos
+  por documento bloquean ese documento 15 minutos.
 - Mensaje de identidad genérico: no revela si un documento es de un asociado ni si tiene fecha de expedición registrada.
-- Roles del panel: **Administrador** (todo) y **Revisor** (consultar, aprobar o rechazar pagos y exportar); el servidor responde 403
-  a lo que el rol no permite. `PANEL_REDES` restringe el panel a redes internas.
-- Registro de seguridad en formato JSON (`journalctl ... | grep '"tipo":"seguridad"'`), sin claves, fechas ni documentos completos.
-- Respaldos cifrados con AES-256-GCM (`RESPALDO_CLAVE`); restauración con `node scripts/restaurar.js`.
-- `fecha_supresion_datos` (config.json): aviso a los administradores cuando se cumple la finalidad del tratamiento.
-- El documento del asociado se recuerda solo durante la sesión del navegador (`sessionStorage`).
-- Cabeceras: Content-Security-Policy estricta (sin scripts ni estilos en línea), `nosniff`, `X-Frame-Options`,
-  `Permissions-Policy` y `Cross-Origin-Opener-Policy`. Los soportes de imagen se sirven con CSP `sandbox`.
-- Solo se aceptan cuerpos JSON (415 en otro caso); URL mal codificadas responden 400.
-- Los soportes se guardan con nombre aleatorio fuera de la carpeta pública y solo se sirven a administradores.
+- Registro de seguridad en formato JSON (`LOG_SEGURIDAD`; en Render, en los logs del servicio), sin claves, fechas ni
+  documentos completos.
+- **Cabeceras**: Content-Security-Policy estricta con *nonce* por solicitud (Livewire usa la compilación `csp_safe` de Alpine,
+  sin `eval`), `nosniff`, `X-Frame-Options`, `Referrer-Policy`, `Permissions-Policy` y `Cross-Origin-Opener-Policy`.
+- **Comprobantes**: se identifican por su firma de bytes, se guardan con nombre aleatorio en la base de datos (tabla
+  `soportes_archivos`; o en un disco privado/S3 con `SOPORTES_ALMACEN`) y solo se sirven a usuarios del panel, aislados con
+  CSP `sandbox`.
 - La exportación CSV neutraliza fórmulas para evitar inyección al abrirla en Excel.
-- En producción, publique detrás de HTTPS (la cookie se marca `Secure` automáticamente si el proxy envía `X-Forwarded-Proto: https`).
+- Respaldos cifrados con AES-256-GCM (`RESPALDO_CLAVE`); restauración con `evento:restaurar`.
+- `fecha_supresion_datos` (config.json): aviso a los administradores cuando se cumple la finalidad del tratamiento
+  (borrado con `evento:limpiar`).
+- En producción, publique detrás de HTTPS con `TRUSTED_PROXIES` configurado para tomar la IP real del cliente.
 
-## API
-
-| Método | Ruta | Descripción |
-|---|---|---|
-| GET | `/api/evento` | Evento, tarifas, campos del soporte, habeas data, configuración |
-| GET | `/api/cupos` | Contador público de cupos por evento |
-| POST | `/api/identificar` | `{ documento, fechaExpedicion, autorizaDatos }` |
-| POST | `/api/simular` | `{ documento, fechaExpedicion, agenciaEvento, acompanantes }` |
-| POST | `/api/inscripciones` | Preinscribir (mismos datos + `autorizaDatos`) |
-| POST | `/api/inscripciones/con-pago` | Inscribirse y registrar el pago en un solo paso (módulo agencia): datos de la simulación + `medioPago: AGENCIA`, `agenciaPago`, `recibo`, `fechaPago`, `valorPagado`, `campos`, `archivo` (opcional) |
-| POST | `/api/inscripciones/consultar` · `/modificar` · `/cancelar` · `/soporte` | Requieren `{ referencia, documento, fechaExpedicion }` |
-| POST | `/api/admin/login` · `/logout` | Sesión del panel |
-| GET | `/api/admin/cupos` · `/inscripciones` · `/inscripciones/:id` · `/soportes/:id` · `/exportar.csv` | Panel |
-| POST | `/api/admin/cupos/:agencia` · `/inscripciones/:id/revision` | Ajustar cupo · `{ accion: APROBAR\|RECHAZAR\|ANULAR, motivo }` |
-
-## Documentos de prueba (`npm run dev`, data/*.seed.json)
+## Documentos de prueba (`DatosPruebaSeeder`, data/*.seed.json)
 
 | Documento | Fecha expedición | Agencia | Caso |
 |---|---|---|---|
-| 1001 / 1002 | 14/03/2008 · 22/07/2010 | BOGOTA | Válidos |
-| 2001 / 2002 | 30/11/2005 · 18/05/2009 | ORITO | Válidos |
+| 1001 / 1002 | 14/03/2008 · 22/07/2010 | BOGOTA | Válidos (1001 tiene los Coopetrolitos 1100001 y 1100002) |
+| 1003 | 09/01/2012 | BOGOTA NORTE | Válido |
+| 2001 / 2002 | 30/11/2005 · 18/05/2009 | ORITO | Válidos (2001 tiene el Coopetrolito 1100003) |
 | 3001 | 02/08/2011 | CALI | Válido |
 | 4001 | 25/02/2003 | BARRANCABERMEJA | Datos vencidos |
+| 5001 | 11/10/2007 | BARRANQUILLA | Válido |
 | 6001 | 06/06/2014 | MEDELLIN | Sin fecha de actualización |
 | 9001 | 19/09/2001 | BOGOTA | No asociado |
 
 ## Identidad visual
 
 Paleta de coopetrol.coop: verde `#009935`, `#00723A` / `#007749`, texto `#2C3A33`, acento `#FFB81C`; tipografía **Poppins**.
-# simulador-eventos
-#   e v e n t o - c o o p e t r o l  
- #   e v e n t o - c o o p e t r o l  
- 

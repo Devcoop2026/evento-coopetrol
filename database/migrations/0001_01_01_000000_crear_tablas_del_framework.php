@@ -1,0 +1,43 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+/**
+ * Tablas que usa Laravel: sesiones del panel y caché (límites de intentos por IP y por documento).
+ * Se guardan en PostgreSQL para que sobrevivan a reinicios del servicio (Render no tiene disco persistente).
+ */
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::create('sessions', function (Blueprint $table) {
+            $table->string('id')->primary();
+            $table->string('user_id', 40)->nullable()->index(); // usuario del panel
+            $table->string('ip_address', 45)->nullable();
+            $table->text('user_agent')->nullable();
+            $table->longText('payload');
+            $table->integer('last_activity')->index();
+        });
+
+        Schema::create('cache', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->mediumText('value');
+            $table->bigInteger('expiration')->index();
+        });
+
+        Schema::create('cache_locks', function (Blueprint $table) {
+            $table->string('key')->primary();
+            $table->string('owner');
+            $table->bigInteger('expiration')->index();
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::dropIfExists('cache_locks');
+        Schema::dropIfExists('cache');
+        Schema::dropIfExists('sessions');
+    }
+};

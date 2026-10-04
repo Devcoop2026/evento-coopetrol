@@ -1,12 +1,12 @@
-// Service worker: cachea la interfaz para abrirla sin conexión.
-// La API (api/* bajo el alcance del service worker, p. ej. /portal-eventos/api/) siempre va a la red porque las
-// validaciones dependen de la base de datos.
-const CACHE = 'evento-coopetrol-v27';
-const RUTA_API = new URL('api/', self.registration.scope).pathname; // funciona en la raíz o bajo un subdirectorio
-const ARCHIVOS = ['./', 'index.html', 'styles.css', 'app.js', 'comun.js', 'dialogo.js', 'notificacion.js', 'validacion.js', 'admin.html', 'admin.js', 'manifest.webmanifest', 'img/logo-coopetrol.png', 'img/icon.svg'];
+// Service worker: guarda en caché los recursos estáticos para que la página cargue rápido y se vea sin conexión.
+// Las páginas y las acciones de Livewire siempre van a la red (dependen de la base de datos y de la sesión);
+// el panel (/admin) nunca se guarda en caché. Subir CACHE al cambiar los archivos estáticos.
+const CACHE = 'evento-coopetrol-v28';
+const ESTATICOS = ['styles.css', 'js/interfaz.js', 'js/notificacion.js', 'js/validacion.js',
+  'manifest.webmanifest', 'img/logo-coopetrol.png', 'img/icon.svg'];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ARCHIVOS)).then(() => self.skipWaiting()));
+  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(ESTATICOS)).then(() => self.skipWaiting()));
 });
 
 self.addEventListener('activate', (e) => {
@@ -15,9 +15,13 @@ self.addEventListener('activate', (e) => {
     .then(() => self.clients.claim()));
 });
 
+const base = new URL('./', self.registration.scope).pathname;
+const esEstatico = (url) => /\.(css|js|png|svg|webmanifest)$/.test(url.pathname)
+  && !url.pathname.startsWith(`${base}livewire`) && !url.pathname.startsWith(`${base}admin`);
+
 self.addEventListener('fetch', (e) => {
   const url = new URL(e.request.url);
-  if (e.request.method !== 'GET' || url.origin !== location.origin || url.pathname.startsWith(RUTA_API)) return;
+  if (e.request.method !== 'GET' || url.origin !== location.origin || !esEstatico(url)) return;
   // Red primero; si no hay conexión, se usa la copia en caché.
   e.respondWith(
     fetch(e.request)
@@ -26,6 +30,6 @@ self.addEventListener('fetch', (e) => {
         caches.open(CACHE).then((c) => c.put(e.request, copia));
         return res;
       })
-      .catch(() => caches.match(e.request)),
+      .catch(() => caches.match(e.request, { ignoreSearch: true })),
   );
 });

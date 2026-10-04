@@ -1,44 +1,89 @@
-# Render Blueprint del portal de eventos (ver deploy/render/DESPLIEGUE-RENDER.md).
-# En Render: New > Blueprint > repositorio simulador-eventos. Crea el servicio web con su disco persistente.
+# Render Blueprint del portal del Evento Fin de Año Coopetrol (Laravel en Docker + PostgreSQL en Neon).
+# Guía completa: deploy/render/DESPLIEGUE-RENDER.md. En Render: New > Blueprint > este repositorio.
+#
+# Plan gratuito: el servicio se suspende tras 15 minutos sin visitas (la primera visita después tarda ~1 minuto) y no
+# tiene disco persistente. Por eso los comprobantes de pago, las sesiones y la caché se guardan en la base (Neon).
 services:
   - type: web
     name: evento-coopetrol
-    runtime: node
-    region: virginia            # la más cercana a Colombia
-    plan: starter               # el plan gratuito no admite disco persistente: la base y los soportes se perderían
+    runtime: docker
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    region: virginia            # la región de Render más cercana a Colombia; cree Neon en AWS us-east-1 (N. Virginia)
+    plan: free
     branch: main
     autoDeploy: false           # se publica a mano (Manual Deploy) cuando el código esté listo
-    buildCommand: node --version   # sin dependencias que instalar
-    startCommand: node --disable-warning=ExperimentalWarning server.js
-    healthCheckPath: /api/cupos
-    disk:
-      name: datos
-      mountPath: /var/data      # base de datos, soportes de pago y respaldos (sobreviven a reinicios y despliegues)
-      sizeGB: 1
+    healthCheckPath: /up
     envVars:
-      - key: NODE_ENV
+      # La imagen (Nginx + PHP-FPM) escucha en el 8080: PORT le indica a Render a qué puerto enviar el tráfico.
+      - key: PORT
+        value: "8080"
+      - key: APP_NAME
+        value: Evento Coopetrol
+      - key: APP_ENV
         value: production
-      - key: HOST
-        value: 0.0.0.0
+      - key: APP_DEBUG
+        value: "false"
+      # Genérela en su equipo con `php artisan key:generate --show` (formato base64:...). Render no la puede generar:
+      # su generateValue no tiene el prefijo base64: que exige Laravel.
+      - key: APP_KEY
+        sync: false
+      # Dirección pública, p. ej. https://evento-coopetrol.onrender.com o https://eventos.coopetrol.coop
+      - key: APP_URL
+        sync: false
+      - key: APP_LOCALE
+        value: es
+      - key: APP_FALLBACK_LOCALE
+        value: es
+
+      # ---- Base de datos: Neon (PostgreSQL) ----
+      # Cadena de conexión "pooled" de Neon (servidor con -pooler), p. ej.
+      # postgresql://usuario:clave@ep-xxxx-pooler.us-east-1.aws.neon.tech/evento_coopetrol?sslmode=require
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_URL
+        sync: false
+      - key: DB_SSLMODE
+        value: require
+
+      # ---- Sesiones del panel y caché (en la base: el disco del servicio se pierde en cada despliegue) ----
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_LIFETIME
+        value: "480"
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: SESSION_SAME_SITE
+        value: strict
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+
       # Render atiende HTTPS y reenvía con X-Forwarded-For / X-Forwarded-Proto.
-      - key: TRUST_PROXY
-        value: "1"
-      - key: CABECERA_IP
-        value: x-forwarded-for
-      - key: IP_SALTOS
-        value: "1"
-      - key: EVENTO_DB
-        value: /var/data/evento.db
-      - key: SOPORTES_DIR
-        value: /var/data/soportes
-      - key: RESPALDO_DIR
-        value: /var/data/respaldos
-      # Claves: EVENTO_SECRETO la genera Render; RESPALDO_CLAVE (64 hexadecimales) se ingresa al crear el servicio.
-      # Guarde una copia segura de ambas: sin ellas no se validan las fechas de expedición ni se descifran los respaldos.
+      - key: TRUSTED_PROXIES
+        value: "*"
+
+      # Registros de la aplicación y de seguridad en los logs del servicio.
+      - key: LOG_CHANNEL
+        value: stderr
+      - key: LOG_LEVEL
+        value: info
+      - key: LOG_SEGURIDAD
+        value: php://stderr
+
+      # ---- Evento ----
+      # Clave HMAC de las fechas de expedición (32 caracteres o más). Si migra los asociados de la versión anterior debe
+      # ser EXACTAMENTE la EVENTO_SECRETO del servidor anterior; en una instalación nueva genere una al azar
+      # (p. ej. php -r "echo bin2hex(random_bytes(32));"). Guarde una copia segura.
       - key: EVENTO_SECRETO
-        generateValue: true
+        sync: false
+      # Comprobantes de pago en la base de datos (Neon). Alternativa: s3 (Cloudflare R2), ver la guía.
+      - key: SOPORTES_ALMACEN
+        value: base_datos
+      # Clave de 64 hexadecimales para cifrar los respaldos de evento:respaldo (AES-256-GCM).
       - key: RESPALDO_CLAVE
         sync: false
-      # Opcional: restringir el panel a las IP públicas de Coopetrol (CIDR separados por coma).
+      # Opcional: restringir el panel a las IP públicas de Coopetrol (CIDR separados por coma). Vacío = sin restricción.
       - key: PANEL_REDES
         sync: false

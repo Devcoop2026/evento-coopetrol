@@ -1,11 +1,34 @@
-data/evento.db
-data/evento.db-*
-node_modules/
-data/asociados.json
+# Laravel
+/vendor
+/node_modules
+/public/build
+/public/hot
+/public/storage
+/storage/*.key
+/storage/pail
+.env
+.env.backup
+.env.production
+.phpunit.result.cache
+/.phpunit.cache
+.phpactor.json
+Homestead.json
+Homestead.yaml
+npm-debug.log
+
+# Datos personales y respaldos: nunca en el repositorio
+data/*.db
+data/*.db-*
 data/soportes/
+data/asociados.json
 data/coopetrolitos.json
 respaldos/
+importar/
+
+# Editores y sistema
+.vscode/
+.idea/
+.fleet/
+.zed/
 __pycache__/
 ~$*
-data/evento-dev.db*
-docs/
