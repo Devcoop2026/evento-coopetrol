@@ -9,6 +9,25 @@ pagos, ajuste cupos, cargue las bases de asociados y Coopetrolitos y exporte a E
 - **Estructura del código y cómo extenderlo**: [ARQUITECTURA.md](ARQUITECTURA.md).
 - **Despliegue en Render + Neon** (paso a paso): [deploy/render/DESPLIEGUE-RENDER.md](deploy/render/DESPLIEGUE-RENDER.md).
 
+## Enlaces
+
+| | Producción (Render) | Desarrollo local |
+|---|---|---|
+| Página del evento (asociados) | https://evento-coopetrol-laravel.onrender.com/ | http://localhost:8000/ |
+| Panel de administración | https://evento-coopetrol-laravel.onrender.com/admin | http://localhost:8000/admin |
+
+Enlaces directos a cada módulo de la página del evento (p. ej. para compartir desde las agencias):
+
+| Módulo | Enlace |
+|---|---|
+| Inscripción y pago por PSE | https://evento-coopetrol-laravel.onrender.com/#pse |
+| Inscripción y pago en agencia | https://evento-coopetrol-laravel.onrender.com/#agencia |
+| Consulte su inscripción | https://evento-coopetrol-laravel.onrender.com/#consulta |
+
+La dirección de producción es la que asigna Render al servicio `evento-coopetrol-laravel` de `render.yaml`. Si se
+configura un dominio propio (p. ej. `https://eventos.coopetrol.coop`), reemplace aquí la dirección y actualice `APP_URL`.
+El panel solo es accesible desde las redes de `PANEL_REDES`, si se definió.
+
 ## Ejecutar en desarrollo
 
 Requisitos: **PHP 8.4** con las extensiones `pdo_pgsql`, `sodium`, `zip` (y `intl`, recomendada), **Composer** y
