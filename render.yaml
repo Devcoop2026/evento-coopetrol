@@ -5,7 +5,7 @@
 # tiene disco persistente. Por eso los comprobantes de pago, las sesiones y la caché se guardan en la base (Neon).
 services:
   - type: web
-    name: evento-coopetrol
+    name: evento-coopetrol-laravel   # nombre distinto del servicio Node anterior: Render crea un servicio nuevo y no toca el viejo ni su disco
     runtime: docker
     dockerfilePath: ./Dockerfile
     dockerContext: .
@@ -28,7 +28,7 @@ services:
       # su generateValue no tiene el prefijo base64: que exige Laravel.
       - key: APP_KEY
         sync: false
-      # Dirección pública, p. ej. https://evento-coopetrol.onrender.com o https://eventos.coopetrol.coop
+      # Dirección pública, p. ej. https://evento-coopetrol-laravel.onrender.com o https://eventos.coopetrol.coop
       - key: APP_URL
         sync: false
       - key: APP_LOCALE

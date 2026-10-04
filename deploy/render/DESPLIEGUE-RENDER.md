@@ -1,7 +1,7 @@
 # Despliegue en Render + Neon
 
 La aplicación (Laravel en Docker) corre en **Render** y la base de datos PostgreSQL en **Neon**, ambos en su plan
-gratuito. Render publica con HTTPS en `https://evento-coopetrol.onrender.com` (o un subdominio de Coopetrol) sin depender
+gratuito. Render publica con HTTPS en `https://evento-coopetrol-laravel.onrender.com` (o un subdominio de Coopetrol) sin depender
 del firewall de la empresa. La configuración del servicio está en `render.yaml` (Blueprint) y la imagen en `Dockerfile`.
 
 ## Lo que hay que saber de los planes gratuitos
@@ -65,7 +65,7 @@ php -r "echo bin2hex(random_bytes(32)), PHP_EOL;"  # EVENTO_SECRETO, solo en una
    | Variable | Valor |
    |---|---|
    | `APP_KEY` | La del paso 2 |
-   | `APP_URL` | `https://evento-coopetrol.onrender.com` (o su dominio propio) |
+   | `APP_URL` | `https://evento-coopetrol-laravel.onrender.com` (o su dominio propio) |
    | `DB_URL` | Cadena **pooled** de Neon |
    | `EVENTO_SECRETO` | La del paso 2 (la del servidor anterior si migra datos) |
    | `RESPALDO_CLAVE` | La del paso 2 |
@@ -81,7 +81,7 @@ Al arrancar, el contenedor ejecuta (`deploy/docker/50-evento.sh`): `config:cache
 `migrate --force` (crea o actualiza las tablas en Neon) y `evento:tarifas --solo-recargar`. Si algo falla, el
 despliegue no queda activo y el error aparece en **Logs**. Render verifica la salud en `/up`.
 
-Cuando el estado sea *Live*, abra `https://evento-coopetrol.onrender.com/up` y luego la portada.
+Cuando el estado sea *Live*, abra `https://evento-coopetrol-laravel.onrender.com/up` y luego la portada.
 
 Los despliegues siguientes son manuales (`autoDeploy: false`): **Manual Deploy → Deploy latest commit**.
 
@@ -202,7 +202,7 @@ panel, las tarifas y la configuración. Si el respaldo previo falla, no se borra
 ## 11. Dominio propio (opcional), p. ej. `https://eventos.coopetrol.coop`
 
 Servicio → **Settings → Custom Domains → Add** `eventos.coopetrol.coop`. Render indica un registro **CNAME** que se crea
-en el DNS de `coopetrol.coop` apuntando a `evento-coopetrol.onrender.com`. El certificado lo emite y renueva Render.
+en el DNS de `coopetrol.coop` apuntando a `evento-coopetrol-laravel.onrender.com`. El certificado lo emite y renueva Render.
 Actualice `APP_URL`.
 
 ## 12. Verificar la IP de los clientes (una vez)
