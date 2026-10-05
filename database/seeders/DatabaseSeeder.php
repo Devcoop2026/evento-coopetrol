@@ -10,5 +10,9 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call(TarifasSeeder::class);
+
+        if (env('ADMIN_CLAVE')) {
+            $this->call(AdministradorSeeder::class);
+        }
     }
 }

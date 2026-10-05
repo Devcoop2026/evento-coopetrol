@@ -1,5 +1,6 @@
 # Laravel
 /vendor
+/vendor-partial-*/
 /node_modules
 /public/build
 /public/hot
@@ -24,6 +25,7 @@ data/asociados.json
 data/coopetrolitos.json
 respaldos/
 importar/
+*.7z
 
 # Editores y sistema
 .vscode/

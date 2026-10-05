@@ -11,8 +11,7 @@ use Illuminate\Support\Str;
 use PDO;
 
 /**
- * Comprobantes guardados en la tabla soportes_archivos (bytea en PostgreSQL). Es el almacén por defecto: en Render el
- * disco del servicio se pierde en cada despliegue y la base (Neon) sí persiste y entra en sus respaldos.
+ * Comprobantes guardados como datos binarios en la tabla soportes_archivos.
  */
 final class AlmacenComprobantesBaseDatos implements AlmacenComprobantes
 {
@@ -21,7 +20,7 @@ final class AlmacenComprobantesBaseDatos implements AlmacenComprobantes
     public function guardar(string $contenido, TipoComprobante $tipo): string
     {
         $nombre = Str::uuid().'.'.$tipo->extension();
-        // PDO::PARAM_LOB para que PostgreSQL reciba bytes y no texto (los binarios no son UTF-8 válido).
+        // Mantiene los comprobantes como bytes; el contenido no necesariamente es UTF-8 válido.
         $sentencia = $this->db->getPdo()->prepare('INSERT INTO soportes_archivos (nombre, contenido, creado_en) VALUES (?, ?, ?)');
         $sentencia->bindValue(1, $nombre);
         $sentencia->bindValue(2, $contenido, PDO::PARAM_LOB);

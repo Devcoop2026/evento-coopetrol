@@ -228,6 +228,7 @@ class Consulta extends Component
         $this->pago->reiniciar('PSE', $inscripcion['total']);
         $this->dispatch('cupos-actualizados');
         $this->mostrar($inscripcion);
+        $this->mensaje('soporte', 'Soporte enviado correctamente.', 'ok');
         $this->mensaje('estado', 'Soporte enviado correctamente.', 'ok');
         $this->dispatch('desplazar', selector: '#estado-inscripcion');
     }

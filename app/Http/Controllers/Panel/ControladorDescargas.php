@@ -8,6 +8,7 @@ use App\Aplicacion\Panel\ObtenerComprobante;
 use App\Dominio\Compartido\Reloj;
 use App\Dominio\Compartido\Valores;
 use App\Http\Controllers\Controller;
+use App\Infraestructura\Excel\GeneradorXlsx;
 use Symfony\Component\HttpFoundation\Response;
 
 /** Archivos que descarga el panel: comprobantes de pago, exportación de inscripciones y plantillas de las bases. */
@@ -33,23 +34,24 @@ class ControladorDescargas extends Controller
         return response($contenido, 200, $cabeceras);
     }
 
-    /** CSV de inscripciones para Excel (con BOM y fórmulas neutralizadas). */
-    public function exportar(ExportarInscripciones $exportar, Reloj $reloj): Response
+    /** Exportación de inscripciones en formato Excel (XLSX). */
+    public function exportar(ExportarInscripciones $exportar, GeneradorXlsx $generador, Reloj $reloj): Response
     {
         $fecha = Valores::fechaColombia($reloj->ahora());
 
-        return response($exportar->ejecutar(), 200, [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => "attachment; filename=\"inscripciones-{$fecha}.csv\"",
+        return response($generador->desdeFilas($exportar->ejecutar()), 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => "attachment; filename=\"inscripciones-{$fecha}.xlsx\"",
             'Cache-Control' => 'no-store',
         ]);
     }
 
-    public function plantilla(string $tipo): Response
+    public function plantilla(string $tipo, GeneradorXlsx $generador): Response
     {
-        return response(DefinicionesBase::plantilla($tipo), 200, [
-            'Content-Type' => 'text/csv; charset=utf-8',
-            'Content-Disposition' => "attachment; filename=\"plantilla-{$tipo}.csv\"",
+        return response($generador->desdeCsv(DefinicionesBase::plantilla($tipo)), 200, [
+            'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            'Content-Disposition' => "attachment; filename=\"plantilla-{$tipo}.xlsx\"",
+            'Cache-Control' => 'no-store',
         ]);
     }
 }

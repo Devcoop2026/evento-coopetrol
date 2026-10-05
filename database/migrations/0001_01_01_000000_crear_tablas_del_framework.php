@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 /**
  * Tablas que usa Laravel: sesiones del panel y caché (límites de intentos por IP y por documento).
- * Se guardan en PostgreSQL para que sobrevivan a reinicios del servicio (Render no tiene disco persistente).
+ * Se guardan en la base para que las sesiones y el caché puedan persistir entre solicitudes.
  */
 return new class extends Migration
 {

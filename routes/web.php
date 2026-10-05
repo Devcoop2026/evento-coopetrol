@@ -22,8 +22,8 @@ Route::middleware('red.panel')->prefix('admin')->group(function () {
     Route::middleware('auth')->group(function () {
         Route::get('/', Panel::class)->name('panel');
         Route::get('/soportes/{soporte}', [ControladorDescargas::class, 'comprobante'])->whereNumber('soporte')->name('panel.comprobante');
-        Route::get('/exportar.csv', [ControladorDescargas::class, 'exportar'])->name('panel.exportar');
-        Route::get('/bases/{tipo}/plantilla.csv', [ControladorDescargas::class, 'plantilla'])
+        Route::get('/exportar.xlsx', [ControladorDescargas::class, 'exportar'])->name('panel.exportar');
+        Route::get('/bases/{tipo}/plantilla.xlsx', [ControladorDescargas::class, 'plantilla'])
             ->whereIn('tipo', ['asociados', 'coopetrolitos'])->middleware('can:administrar')->name('panel.plantilla');
     });
 });

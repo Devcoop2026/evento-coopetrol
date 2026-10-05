@@ -2,7 +2,7 @@
     "$schema": "https://getcomposer.org/schema.json",
     "name": "coopetrol/evento-fin-de-ano",
     "type": "project",
-    "description": "Portal del Evento Fin de Año Coopetrol: simulación, inscripción, registro del pago y panel de revisión (Laravel + Livewire + PostgreSQL).",
+    "description": "Portal del Evento Fin de Año Coopetrol: simulación, inscripción, registro del pago y panel de revisión (Laravel + Livewire + MySQL).",
     "keywords": [
         "coopetrol",
         "evento",
@@ -11,19 +11,18 @@
     ],
     "license": "proprietary",
     "require": {
-        "php": "^8.3",
-        "laravel/framework": "^13.17",
-        "laravel/tinker": "^3.0",
+        "php": "^8.2",
+        "laravel/framework": "^12.0",
+        "laravel/tinker": "^2.10",
         "livewire/livewire": "^4.4"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
         "laravel/pail": "^1.2.5",
-        "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^12.5.12"
+        "phpunit/phpunit": "^11.5"
     },
     "autoload": {
         "psr-4": {
@@ -79,6 +78,9 @@
         "optimize-autoloader": true,
         "preferred-install": "dist",
         "sort-packages": true,
+        "platform": {
+            "php": "8.2.0"
+        },
         "allow-plugins": {
             "pestphp/pest-plugin": true,
             "php-http/discovery": true

@@ -7,10 +7,7 @@ use App\Dominio\Inscripcion\Pagos\CatalogoMediosPago;
 use App\Dominio\Inscripcion\PersonaInscrita;
 use App\Dominio\Inscripcion\RepositorioInscripciones;
 
-/**
- * Caso de uso: exportar las inscripciones a CSV (separador ";" y BOM para que Excel lo abra con tildes).
- * Las celdas que empiezan por =, +, -, @ se prefijan con ' para evitar inyección de fórmulas al abrirlo en Excel.
- */
+/** Exporta las inscripciones como filas para un libro Excel; neutraliza posibles fórmulas. */
 final class ExportarInscripciones
 {
     public function __construct(
@@ -29,7 +26,8 @@ final class ExportarInscripciones
         return preg_match('/[;"\n\r]/', $t) ? '"'.str_replace('"', '""', $t).'"' : $t;
     }
 
-    public function ejecutar(): string
+    /** @return list<list<mixed>> */
+    public function ejecutar(): array
     {
         $campos = $this->configuracion->camposSoporte;
         $encabezado = ['Referencia', 'Estado', 'Agencia del evento', 'Agencia del asociado', 'Documento titular', 'Titular', 'Personas',
@@ -56,6 +54,6 @@ final class ExportarInscripciones
             ];
         }
 
-        return "\u{FEFF}".implode("\r\n", array_map(fn (array $f) => implode(';', array_map(self::celda(...), $f)), $filas))."\r\n";
+        return array_map(fn (array $fila) => array_map(self::celda(...), $fila), $filas);
     }
 }

@@ -43,7 +43,7 @@ return new class extends Migration
             $table->string('agencia', 80)->primary();
             $table->unsignedInteger('cupos');
             $table->string('actualizado_por', 60)->nullable();
-            $table->timestampTz('actualizado_en')->nullable();
+            $table->dateTime('actualizado_en')->nullable();
         });
 
         // Base de asociados. La fecha de expedición nunca se guarda en texto plano: solo su HMAC.
@@ -71,7 +71,7 @@ return new class extends Migration
             $table->string('archivo', 200)->nullable();
             $table->unsignedInteger('registros');
             $table->string('usuario', 60);
-            $table->timestampTz('cargada_en');
+            $table->dateTime('cargada_en');
         });
 
         Schema::create('inscripciones', function (Blueprint $table) {
@@ -85,13 +85,13 @@ return new class extends Migration
             $table->string('estado', 15);
             $table->text('motivo')->nullable();
             $table->string('revisado_por', 60)->nullable();
-            $table->timestampTz('revisado_en')->nullable();
+            $table->dateTime('revisado_en')->nullable();
             $table->string('autorizacion_version', 40)->nullable(); // versión del texto de habeas data aceptado
-            $table->timestampTz('autorizacion_en')->nullable();
+            $table->dateTime('autorizacion_en')->nullable();
             $table->string('autorizacion_ip', 45)->nullable();
             $table->boolean('autorizacion_imagen')->default(false); // uso de imagen (opcional)
-            $table->timestampTz('creada_en');
-            $table->timestampTz('actualizada_en');
+            $table->dateTime('creada_en');
+            $table->dateTime('actualizada_en');
             $table->index(['estado', 'agencia']);
         });
 
@@ -115,21 +115,25 @@ return new class extends Migration
             $table->string('recibo', 30)->nullable();
             $table->date('fecha_pago');
             $table->unsignedBigInteger('valor_pagado');
-            $table->jsonb('campos');                         // campos adicionales del formulario
+            $table->json('campos');                          // campos adicionales del formulario
             $table->string('archivo', 80)->default('');      // nombre interno del comprobante ('' si no hay)
             $table->string('tipo_archivo', 40)->default('');
             $table->string('nombre_original', 120)->nullable();
             $table->string('alerta')->nullable();
             $table->string('autorizacion_version', 40)->nullable();
-            $table->timestampTz('cargado_en');
+            $table->dateTime('cargado_en');
         });
 
         // Comprobantes guardados en la base (almacén 'base_datos').
         Schema::create('soportes_archivos', function (Blueprint $table) {
             $table->string('nombre', 80)->primary();
             $table->binary('contenido');
-            $table->timestampTz('creado_en');
+            $table->dateTime('creado_en');
         });
+
+        if (Schema::getConnection()->getDriverName() === 'mysql') {
+            Schema::getConnection()->statement('ALTER TABLE soportes_archivos MODIFY contenido LONGBLOB NOT NULL');
+        }
 
         Schema::create('administradores', function (Blueprint $table) {
             $table->string('usuario', 40)->primary();
@@ -147,7 +151,7 @@ return new class extends Migration
             $table->string('entidad', 20); // asociado, coopetrolito, usuario
             $table->string('clave', 60);
             $table->string('detalle')->nullable();
-            $table->timestampTz('fecha');
+            $table->dateTime('fecha');
         });
     }
 

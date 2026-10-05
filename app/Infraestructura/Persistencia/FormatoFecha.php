@@ -6,12 +6,12 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use DateTimeZone;
 
-/** Conversión de marcas de tiempo entre la base (timestamptz, en UTC) y el dominio (ISO 8601: 2026-10-05T15:00:00.000Z). */
+/** Conversión de marcas de tiempo entre la base (en UTC) y el dominio (ISO 8601). */
 final class FormatoFecha
 {
     public static function aBaseDatos(DateTimeInterface $momento): string
     {
-        return DateTimeImmutable::createFromInterface($momento)->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s.vP');
+        return DateTimeImmutable::createFromInterface($momento)->setTimezone(new DateTimeZone('UTC'))->format('Y-m-d H:i:s.v');
     }
 
     public static function aIso(mixed $valor): ?string
